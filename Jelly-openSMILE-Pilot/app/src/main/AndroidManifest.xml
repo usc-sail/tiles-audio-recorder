@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.audeering.opensmile.androidtemplate">
+
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.alarm.permission.SET_ALARM"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    <uses-permission android:name="android.permission.BATTERY_STATS" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
+    <uses-feature android:name="android.hardware.bluetooth_le" android:required="true"/>
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <uses-permission android:name="android.permission.CLEAR_APP_CACHE"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="true"/>
+
+    <application
+        android:name="com.jelly.application.Jelly_Application"
+        android:allowBackup="true"
+        android:icon="@drawable/icon512"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme"
+        android:persistent="true">
+
+        <activity
+            android:name="com.jelly.main.Main"
+            android:screenOrientation="portrait"
+            android:configChanges="keyboardHidden|orientation|screenSize" >
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+        </activity>
+
+        <activity
+            android:name="com.jelly.qr.QR_Code_Activity"
+            android:screenOrientation="portrait"
+            android:configChanges="keyboardHidden|orientation|screenSize">
+
+        </activity>
+
+        <service android:enabled="true" android:name="com.jelly.battery.Battery_Service"/>
+
+        <service android:enabled="true" android:name=".OpenSmile" />
+        <service android:enabled="true" android:name="com.jelly.opensmile.OpenSmile_Service"></service>
+        <service android:enabled="true" android:name="com.jelly.opensmile.OpenSmile_VAD">
+
+            <intent-filter android:priority="1000" >
+                <action android:name="com.jelly.opensmile.OpenSmile_VAD.service" />
+            </intent-filter>
+        </service>
+
+        <service android:enabled="true" android:name="com.jelly.tarsos.Tarsos_VAD">
+            <intent-filter android:priority="1000" >
+                <action android:name="com.jelly.opensmile.Tarsos_VAD.service" />
+            </intent-filter>
+        </service>
+
+        <service android:enabled="true" android:name="com.jelly.network.File_Uploading_Service"/>
+
+        <service android:enabled="true" android:name="com.jelly.ble_service.BLE_Advertise_Service"/>
+        <service android:enabled="true" android:name="com.jelly.ble_service.BLE_Scan_Service"/>
+        <service android:enabled="true" android:name="com.jelly.ble_service.Bluetooth_Scan"/>
+        <service android:enabled="true" android:name="com.jelly.opensmile_debug.OpenSmile_Debug"/>
+        <service android:enabled="true" android:name="com.jelly.wifi.WifiScanService"/>
+
+        <service android:enabled="true" android:name="com.mvp.presenter.JellyTokenPresenter"></service>
+
+        <service
+            android:name="com.amazonaws.mobileconnectors.s3.transferutility.TransferService"
+            android:enabled="true" />
+
+        <receiver android:name="com.jelly.boot_receiver.BootReceiver" android:enabled="true" android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+
+            </intent-filter>
+
+        </receiver>
+
+    </application>
+
+
+</manifest>
