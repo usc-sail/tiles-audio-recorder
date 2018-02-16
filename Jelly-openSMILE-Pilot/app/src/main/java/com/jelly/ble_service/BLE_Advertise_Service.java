@@ -61,7 +61,7 @@ public class BLE_Advertise_Service extends Service {
     private AlarmManager alarmManager;
     private PendingIntent pendingIntent;
 
-    public static final long ALARM_INTERVAL = 1000 * 30;
+    public static final long ALARM_INTERVAL = 1000 * 45;
 
     private int DEBUG_STATE;
     private String jellyTokenID;

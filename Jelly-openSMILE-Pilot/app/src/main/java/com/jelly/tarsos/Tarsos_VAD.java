@@ -146,10 +146,10 @@ public class Tarsos_VAD extends Service implements AudioProcessor, Thread.Uncaug
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
-        if(startId > 6) {
-            stopSelfResult(startId);
-            Log.d(Constants.DEBUG, "Tarsos_VAD->onStartCommand->stopSelfResult");
-        } else {
+        //if(startId > 6) {
+        //    stopSelfResult(startId);
+        //    Log.d(Constants.DEBUG, "Tarsos_VAD->onStartCommand->stopSelfResult");
+        //} else {
             if(retrieveSharedPreference(Constants.VAD_WRITE).contains(Constants.FALSE)) {
                 writeSharedPreference(Constants.VAD_WRITE,  Constants.TRUE);
                 writeSharedPreference(Constants.VAD_GAP,    Integer.toString(VAD_GAP_TIME));
@@ -182,7 +182,7 @@ public class Tarsos_VAD extends Service implements AudioProcessor, Thread.Uncaug
                 waitHandler.postDelayed(waitTickExecutor, 40 * 1000);
             }
 
-        }
+        //}
 
 
 
@@ -246,8 +246,8 @@ public class Tarsos_VAD extends Service implements AudioProcessor, Thread.Uncaug
                             executor.shutdown();
                             isFoundVAD = false;
 
-                            if (VAD_GAP_TIME < 19) {
-                                VAD_GAP_TIME = VAD_GAP_TIME + 3;
+                            if (VAD_GAP_TIME < 20) {
+                                VAD_GAP_TIME = VAD_GAP_TIME + 5;
                             }
 
                             writeSharedPreference(Constants.VAD_GAP, Integer.toString(VAD_GAP_TIME));

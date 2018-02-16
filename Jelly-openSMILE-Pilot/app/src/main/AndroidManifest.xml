@@ -83,6 +83,7 @@
         <service android:enabled="true" android:name="com.jelly.ble_service.Bluetooth_Scan"/>
         <service android:enabled="true" android:name="com.jelly.opensmile_debug.OpenSmile_Debug"/>
         <service android:enabled="true" android:name="com.jelly.wifi.WifiScanService"/>
+        <service android:enabled="true" android:name="com.jelly.network.Upload_Battery_Info"/>
 
         <service android:enabled="true" android:name="com.mvp.presenter.JellyTokenPresenter"></service>
 

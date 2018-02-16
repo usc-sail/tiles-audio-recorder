@@ -64,6 +64,8 @@ public class QR_Code_Activity extends AppCompatActivity implements ZXingScannerV
                 returnIntent.putExtra(Constants.QR_CODE_SCAN_EXTRA, rawResult.getText());
                 setResult(Activity.RESULT_OK, returnIntent);
                 finish();
+
+                Log.d(Constants.DEBUG, "QR_Code_Activity->handleResult->" + rawResult.getText());
             }
         }
 

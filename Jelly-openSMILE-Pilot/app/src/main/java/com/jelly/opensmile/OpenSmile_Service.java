@@ -111,7 +111,7 @@ public class OpenSmile_Service extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
-        if(startId < 6) {
+        //if(startId < 6) {
 
             Log.d(DEBUG, "onStart: OpenSmile_Services");
 
@@ -155,14 +155,14 @@ public class OpenSmile_Service extends Service {
                     SimpleDateFormat format= new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
                     String myDate = format.format(new Date());
-
+                    /*
                     String wavPath = "TILEs/" + myDate + "/Wav";
                     File wavFile = new File(Environment.getExternalStorageDirectory(), wavPath);
                     if (!wavFile.exists()) {
                         if (!wavFile.mkdirs()) {
                             Log.e(DEBUG, "Problem creating folder");
                         }
-                    }
+                    }*/
 
                     String csvPath = "TILEs/" + myDate + "/csv";
                     File csvFile = new File(Environment.getExternalStorageDirectory(), csvPath);
@@ -206,10 +206,10 @@ public class OpenSmile_Service extends Service {
                     break;
 
             }
-        } else {
-            stopSelfResult(startId);
-            Log.d(Constants.DEBUG, "OpenSmile_Service->onStartCommand->stopSelfResult");
-        }
+        //} else {
+        //    stopSelfResult(startId);
+        //    Log.d(Constants.DEBUG, "OpenSmile_Service->onStartCommand->stopSelfResult");
+        //}
 
 
 

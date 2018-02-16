@@ -50,6 +50,7 @@ import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.jelly.battery.Battery_Service;
 import com.jelly.constant.Constants;
 import com.jelly.network.File_Uploading_Service;
+import com.jelly.network.Upload_Battery_Info;
 import com.jelly.off_boarding.ReadParagraphActivity;
 import com.jelly.opensmile.OpenSmile_Service;
 import com.jelly.opensmile.OpenSmile_VAD;
@@ -448,6 +449,7 @@ public class Main extends AppCompatActivity {
 
                             } else {
                                 if(checkWIFIAvailability()) {
+                                    startBatteryUploadingService();
                                     startFileUploadingService();
                                     UploadDataButton.setText("PAUSE");
                                     UploadDataButton.setBackgroundColor(getResources().getColor(R.color.colorOn));
@@ -479,6 +481,7 @@ public class Main extends AppCompatActivity {
         @Override
         public void run() {
             if(checkWIFIAvailability()) {
+                startBatteryUploadingService();
                 startFileUploadingService();
                 UploadDataButton.setText("PAUSE");
                 UploadDataButton.setEnabled(true);
@@ -635,18 +638,22 @@ public class Main extends AppCompatActivity {
 
     private void updateGUI() {
 
+
+
         if(retrieveSharedPreference(Constants.VAD_ON_OFF).equals(Constants.VAD_ON)) {
 
             if(isAllPermissionGranted() && retrieveSharedPreference(Constants.QR_CODE_SCANNED).equals(Constants.QR_CODE_IS_SCANNED)) {
+                String jellyTokenID = retrieveSharedPreference(Constants.QR_CODE_ID).substring(0, 4);
+
                 if(retrieveSharedPreference(Constants.VAD_CURRENT_ON).contains(Constants.VAD_ON)) {
                     Running_Status_Textview.setVisibility(View.VISIBLE);
-                    Running_Status_Textview.setText("VAD CURRENTLY RUNNING");
+                    Running_Status_Textview.setText("Your User ID: " + jellyTokenID + "\nVAD CURRENTLY RUNNING");
                 } else if (retrieveSharedPreference(Constants.VAD_CURRENT_ON).contains(Constants.VAD_IDLE)) {
                     Running_Status_Textview.setVisibility(View.VISIBLE);
-                    Running_Status_Textview.setText("VAD CURRENTLY IDLE");
+                    Running_Status_Textview.setText("Your User ID: " + jellyTokenID + "\nVAD CURRENTLY IDLE");
                 } else if (retrieveSharedPreference(Constants.OPENSMILE_CURRENT_ON).contains(Constants.VAD_ON)) {
                     Running_Status_Textview.setVisibility(View.VISIBLE);
-                    Running_Status_Textview.setText("OPENSMILE CURRENTLY RUNNING");
+                    Running_Status_Textview.setText("Your User ID: " + jellyTokenID + "\nOPENSMILE CURRENTLY RUNNING");
                 }
             } else {
                 Running_Status_Textview.setVisibility(View.INVISIBLE);
@@ -654,9 +661,10 @@ public class Main extends AppCompatActivity {
 
         } else {
             if(retrieveSharedPreference(Constants.QR_CODE_SCANNED).equals(Constants.QR_CODE_IS_SCANNED)) {
+                String jellyTokenID = retrieveSharedPreference(Constants.QR_CODE_ID).substring(0, 4);
                 int time_remaining = 30 - Integer.parseInt(retrieveSharedPreference(Constants.VAD_OFF_TIME)) * 5;
                 Running_Status_Textview.setVisibility(View.VISIBLE);
-                Running_Status_Textview.setText("ACOUSTIC WILL BE RESUME BACK IN " + Integer.toString(time_remaining) + " MIN");
+                Running_Status_Textview.setText("Your User ID:" + jellyTokenID + "\nACOUSTIC WILL BE RESUME BACK IN " + Integer.toString(time_remaining) + " MIN");
             } else {
                 Running_Status_Textview.setVisibility(View.INVISIBLE);
             }
@@ -784,7 +792,24 @@ public class Main extends AppCompatActivity {
         /*
         *   Alarm set repeat is not exact and can have significant drift
         * */
-        alarmManager.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + 3000, pendingIntent);
+        alarmManager.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + 5000, pendingIntent);
+
+    }
+
+    private void startBatteryUploadingService() {
+
+        /*
+        *   Repeat the recording services every 3min (It will vary according to test results)
+        */
+        alarmManager = (AlarmManager)getSystemService(ALARM_SERVICE);
+
+        Intent fileUploading_Intent = new Intent(this, Upload_Battery_Info.class);
+        pendingIntent = PendingIntent.getService(Main.this, 1, fileUploading_Intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        /*
+        *   Alarm set repeat is not exact and can have significant drift
+        * */
+        alarmManager.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + 2000, pendingIntent);
 
     }
 
