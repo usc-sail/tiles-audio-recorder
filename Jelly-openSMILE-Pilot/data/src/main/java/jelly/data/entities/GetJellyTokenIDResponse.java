@@ -9,21 +9,23 @@ import com.google.gson.annotations.SerializedName;
 
 public class GetJellyTokenIDResponse {
 
+    @SerializedName("errors")
+    @Expose
+    private String[] errors;
+
     @SerializedName("success")
     @Expose
     private String state;
-
-    @SerializedName("result")
-    @Expose
-    private String returnResult;
 
     @SerializedName("message")
     @Expose
     private String returnMessage;
 
-    @SerializedName("errors")
+
+    @SerializedName("result")
     @Expose
-    private String[] errors;
+    private String returnResult;
+
 
     public String getState() {
         return state;

@@ -50,6 +50,7 @@ public class JellyTokenPresenter extends Service{
         mJellyTokenUseCase.execute().subscribe(new Observer<GetJellyTokenIDResponse>() {
             @Override
             public void onSubscribe(Disposable d) {
+                Log.d("TILEs", "JellyTokenPresenter->GetJellyTokenIDResponse->onSubscribe");
             }
 
             @Override

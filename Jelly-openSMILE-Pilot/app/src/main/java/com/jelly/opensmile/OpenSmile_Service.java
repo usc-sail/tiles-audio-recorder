@@ -155,14 +155,6 @@ public class OpenSmile_Service extends Service {
                     SimpleDateFormat format= new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
                     String myDate = format.format(new Date());
-                    /*
-                    String wavPath = "TILEs/" + myDate + "/Wav";
-                    File wavFile = new File(Environment.getExternalStorageDirectory(), wavPath);
-                    if (!wavFile.exists()) {
-                        if (!wavFile.mkdirs()) {
-                            Log.e(DEBUG, "Problem creating folder");
-                        }
-                    }*/
 
                     String csvPath = "TILEs/" + myDate + "/csv";
                     File csvFile = new File(Environment.getExternalStorageDirectory(), csvPath);
@@ -191,7 +183,11 @@ public class OpenSmile_Service extends Service {
                     if(Constants.SAVE_WAV) {
                         conf = getApplication().getCacheDir() + "/" + config.saveDataConf;
                     } else {
-                        conf = getApplication().getCacheDir() + "/" + config.saveDataConf_no_Wav;
+                        if(retrieveSharedPreference(Constants.VAD_TRIGGERED).contains(Constants.FALSE)) {
+                            conf = getApplication().getCacheDir() + "/" + config.saveAmbientDataConf;
+                        } else {
+                            conf = getApplication().getCacheDir() + "/" + config.saveDataConf_no_Wav;
+                        }
                     }
 
                     if(retrieveSharedPreference(Constants.VAD_ON_OFF).equals(Constants.VAD_ON)) {
@@ -206,12 +202,6 @@ public class OpenSmile_Service extends Service {
                     break;
 
             }
-        //} else {
-        //    stopSelfResult(startId);
-        //    Log.d(Constants.DEBUG, "OpenSmile_Service->onStartCommand->stopSelfResult");
-        //}
-
-
 
         return START_STICKY;
     }
@@ -239,9 +229,9 @@ public class OpenSmile_Service extends Service {
         writeSharedPreference(Constants.OPENSMILE_CURRENT_ON, Constants.VAD_OFF);
 
         if (Constants.RUN_OPENSMILEVAD){
-            startOpenSmile_VAD();
+            //startOpenSmile_VAD();
         } else {
-            startTarsosVAD();
+            //startTarsosVAD();
         }
     }
 
@@ -274,7 +264,6 @@ public class OpenSmile_Service extends Service {
     }
 
     class SmileWavAndFeatureThread implements Runnable {
-
         @Override
         public void run() {
 

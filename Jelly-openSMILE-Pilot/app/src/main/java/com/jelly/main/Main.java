@@ -547,6 +547,10 @@ public class Main extends AppCompatActivity {
             writeSharedPreference(Constants.VAD_OFF, "0");
         }
 
+        if(retrieveSharedPreference(Constants.VAD_INVALID_TIME).isEmpty()) {
+            writeSharedPreference(Constants.VAD_INVALID_TIME, "0");
+        }
+
         if(retrieveSharedPreference(Constants.WORK_WIFI).isEmpty()) {
             writeSharedPreference(Constants.WORK_WIFI, Constants.WORK_WIFI_ON);
         }

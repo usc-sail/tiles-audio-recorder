@@ -6,5 +6,5 @@ package jelly.data.utils;
 
 public class URLMapper {
     //public static final String BASE_URL = "http://52.33.128.177:8001/api/v1/";
-    public static final String BASE_URL = "https://www.tilesproject.com/api/v1/link_jelly/";
+    public static final String BASE_URL = "https://www.tilesproject.com/api/v1/";
 }

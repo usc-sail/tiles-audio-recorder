@@ -37,7 +37,9 @@ public class Config {
             "jelly_vad_NA.conf",
             "emobase_live4_no_wav.conf",
             "TILEs_core_lld_lldde_llddede.conf",
-            "TILEs_core_temp.conf"
+            "TILEs_core_temp.conf",
+            "TILEs_core_lld.conf",
+            "TILEs_core_lld_ambient.conf"
 
 
     };
@@ -55,10 +57,13 @@ public class Config {
     // Feature Extraction
     //public String saveDataConf = "liveinput_android_radar.conf";
     //public String saveDataConf = "emobase_live4.conf";
-    public String saveDataConf = "TILEs_core_lld_lldde_llddede.conf";
+   // public String saveDataConf = "TILEs_core_lld_lldde_llddede.conf";
+    public String saveDataConf = "TILEs_core_lld.conf";
     //public String saveDataConf = "TILEs_core_temp.conf";
     //public String saveDataConf_no_Wav = "emobase_live4_no_wav.conf";
-    public String saveDataConf_no_Wav = "TILEs_core_lld_lldde_llddede.conf";
+    //public String saveDataConf_no_Wav = "TILEs_core_lld_lldde_llddede.conf";
+    public String saveDataConf_no_Wav = "TILEs_core_lld.conf";
+    public String saveAmbientDataConf = "TILEs_core_lld_ambient.conf";
     //public String saveDataConf_no_Wav = "TILEs_core_temp.conf";
     //public String saveDataConf = "jelly_arousal_valence.conf";
 
