@@ -6,11 +6,13 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -24,8 +26,10 @@ import com.opencsv.CSVWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Executors;
@@ -42,6 +46,7 @@ import be.tarsos.dsp.pitch.PitchDetectionHandler;
 import be.tarsos.dsp.pitch.PitchDetectionResult;
 import be.tarsos.dsp.pitch.PitchDetector;
 import be.tarsos.dsp.pitch.PitchProcessor;
+import scala.collection.immutable.Stream;
 
 /**
  * Created by tiantianfeng on 11/4/17.
@@ -68,12 +73,12 @@ public class Tarsos_VAD extends Service implements AudioProcessor, Thread.Uncaug
     private final boolean ENABLE_ADAPTIVE       = false;
 
     private AudioDispatcher dispatcher;
-    private double threshold = SilenceDetector.DEFAULT_SILENCE_THRESHOLD + 3;
+    private double threshold = SilenceDetector.DEFAULT_SILENCE_THRESHOLD;
     private SilenceDetector silenceDetector;
 
     private Handler vadHandler = new Handler();
     private Handler waitHandler = new Handler();
-
+    private Handler checkHandler = new Handler();
 
     private Thread pitchThread, soundThread;
 
@@ -84,7 +89,7 @@ public class Tarsos_VAD extends Service implements AudioProcessor, Thread.Uncaug
     private int soundDb, pitchHz;
 
     private int VAD_GAP_TIME = 5;
-    private int VAD_RUN_TIME = 10;
+    private int VAD_RUN_TIME = 100000;
     private String DEBUG = "TILEs";
 
     private long numberOfVADRunedThisLifeCycle = 0;
@@ -98,6 +103,13 @@ public class Tarsos_VAD extends Service implements AudioProcessor, Thread.Uncaug
 
     private PitchProcessor pitchProcessor;
     private AudioDispatcher mdispatcher;
+
+    List<Long>  pitch_time_array = new ArrayList<>();
+    List<Long>  energy_time_array = new ArrayList<>();
+
+    List<Double> pitch_array = new ArrayList<>();
+    List<Double> energy_array = new ArrayList<>();
+    private long startRecordingTime = 0;
 
     @Nullable
     @Override
@@ -114,15 +126,6 @@ public class Tarsos_VAD extends Service implements AudioProcessor, Thread.Uncaug
     @Override
     public void onDestroy() {
         super.onDestroy();
-
-        if (isFoundVAD) {
-            startTarsosVADService();
-            writeSharedPreference(Constants.VAD_CURRENT_ON, Constants.VAD_OFF);
-            Log.d("TILEs", "onStop: tarsosVAD_Services");
-        } else {
-            startTarsosVADService();
-            Log.d("TILEs", "onStop: tarsos_Services");
-        }
     }
 
     @Override
@@ -156,7 +159,7 @@ public class Tarsos_VAD extends Service implements AudioProcessor, Thread.Uncaug
                 VAD_GAP_TIME = Integer.parseInt(retrieveSharedPreference(Constants.VAD_GAP));
                 Log.d(DEBUG, "onStart: TarsosVAD_Services: " + VAD_GAP_TIME);
             } else {
-                VAD_GAP_TIME = 60;
+                VAD_GAP_TIME = 10;
                 Log.d(DEBUG, "onStart: TarsosVAD_Services: " + VAD_GAP_TIME);
                 writeSharedPreference(Constants.VAD_GAP, Integer.toString(VAD_GAP_TIME));
             }
@@ -176,14 +179,15 @@ public class Tarsos_VAD extends Service implements AudioProcessor, Thread.Uncaug
             t.schedule(new TimerTask() {
                 @Override
                 public void run() {
-                    mdispatcher = AudioDispatcherFactory.fromDefaultMicrophone(16000, 1024, 0);
+                    Log.d(Constants.DEBUG, "Min Buffer: " + Integer.toString(AudioRecord.getMinBufferSize(16000, 16, 2)));
+                    mdispatcher = AudioDispatcherFactory.fromDefaultMicrophone(16000, Constants.tarsos_window, Constants.tarsos_window - Constants.tarsos_window_shift);
                     mdispatcher.stop();
                     setAudioUpdateRate(VAD_GAP_TIME + VAD_RUN_TIME, VAD_RUN_TIME);
                     saveEnterDataToCSV();
                 }
             }, 2500);
         } else {
-            waitHandler.postDelayed(waitTickExecutor, 90 * 1000);
+            waitHandler.postDelayed(waitTickExecutor, (VAD_GAP_TIME + 90000) * 1000);
         }
 
         return START_STICKY;
@@ -200,10 +204,11 @@ public class Tarsos_VAD extends Service implements AudioProcessor, Thread.Uncaug
     @Override
     public boolean process(AudioEvent audioEvent) {
 
-        if(silenceDetector.currentSPL() > threshold) {
-            Log.d("TILEs", "Sound Detected: " + (int) silenceDetector.currentSPL() + " db SPL\n");
-            validSoundNumber++;
-        }
+        //if(silenceDetector.currentSPL() > -100000) {
+        //Log.d("TILEs", "Sound Detected: " + (int) silenceDetector.currentSPL() + " db SPL\n");
+        energy_time_array.add(new Date().getTime());
+        energy_array.add(silenceDetector.currentSPL());
+        //}
 
         return true;
     }
@@ -271,11 +276,13 @@ public class Tarsos_VAD extends Service implements AudioProcessor, Thread.Uncaug
                                 writeSharedPreference(Constants.VAD_STATUS, Constants.VAD_ALIVE);
 
                                 try {
-                                    mdispatcher = AudioDispatcherFactory.fromDefaultMicrophone(16000, 1024, 0);
+                                    mdispatcher = AudioDispatcherFactory.fromDefaultMicrophone(16000, Constants.tarsos_window, Constants.tarsos_window - Constants.tarsos_window_shift);
                                 } catch (Exception e) {
                                 }
 
                                 isRecording = true;
+                                startRecordingTime = new Date().getTime();
+                                checkHandler.postDelayed(checkTickExecutor, 1000);
 
                                 PitchDetectionHandler pitchDetectionHandler = new PitchDetectionHandler() {
 
@@ -284,8 +291,13 @@ public class Tarsos_VAD extends Service implements AudioProcessor, Thread.Uncaug
                                         if(pitchDetectionResult.isPitched()){
                                             Log.d("TILEs", "Pitch Detected: " + pitchDetectionResult.getPitch());
                                             pitch = pitchDetectionResult.getPitch();
-                                            if(pitch < Constants.VALID_PITCH_HIGH && pitch > Constants.VALID_PITCH_LOW)
-                                                validPitchNumber++;
+                                            //if(pitch < Constants.VALID_PITCH_HIGH && pitch > Constants.VALID_PITCH_LOW) {
+                                                //Log.d(Constants.DEBUG, "Pitch");
+                                            pitch_time_array.add(new Date().getTime());
+                                            pitch_array.add(pitch);
+                                            //}
+
+                                                //validPitchNumber++;
                                             if(validPitchNumber > Constants.VALID_PITCH && validSoundNumber > Constants.VALID_SOUND) {
 
                                                 vadHandler.removeCallbacks(vadRunExecutor);
@@ -309,7 +321,7 @@ public class Tarsos_VAD extends Service implements AudioProcessor, Thread.Uncaug
                                     }
                                 };
 
-                                pitchProcessor = new PitchProcessor(PitchProcessor.PitchEstimationAlgorithm.FFT_YIN, 16000, 1024, pitchDetectionHandler);
+                                pitchProcessor = new PitchProcessor(PitchProcessor.PitchEstimationAlgorithm.FFT_YIN, 16000, Constants.tarsos_window, pitchDetectionHandler);
 
 
                                 try {
@@ -455,6 +467,39 @@ public class Tarsos_VAD extends Service implements AudioProcessor, Thread.Uncaug
         }
     };
 
+    private Runnable checkTickExecutor = new Runnable() {
+        @Override
+        public void run() {
+
+            if(isRecording) {
+                if(retrieveSharedPreference(Constants.VAD_ON_OFF).equals(Constants.VAD_OFF)) {
+                    try {
+
+                        mdispatcher.stop();
+                        soundThread.interrupt();
+                        pitchThread.interrupt();
+
+                        mdispatcher.removeAudioProcessor(pitchProcessor);
+                        mdispatcher.removeAudioProcessor(silenceDetector);
+                        mdispatcher.removeAudioProcessor(Tarsos_VAD.this);
+
+                        saveVADDataToCSV();
+
+                    } catch (Exception e) {
+                        saveErrorToCSV(e.toString() + "Tarsos VAD vadRun_exc");
+                    }
+
+                    isRecording = false;
+                    stopSelf();
+                }
+            }
+
+
+            checkHandler.postDelayed(checkTickExecutor, 1000);
+
+        }
+    };
+
     private void saveDataToCSV() {
 
         String datapath = "TILEs";
@@ -550,6 +595,68 @@ public class Tarsos_VAD extends Service implements AudioProcessor, Thread.Uncaug
         } catch (IOException e) {
 
         }
+
+    }
+
+
+    private void saveVADDataToCSV() {
+
+        String android_id = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+        android_id = android_id.substring(android_id.length() - 4);
+
+        String filepath = Environment.getExternalStorageDirectory().getPath() + "/SAIL_Meeting/" + android_id + "_energy_" + startRecordingTime + ".csv";
+
+        try (CSVWriter writer = new CSVWriter(new FileWriter(filepath, true))) {
+
+            String [] header = new String[2];
+            header[0] = "timestamp";
+            header[1] = "energy";
+            writer.writeNext(header);
+
+            for ( int i = 0; i < energy_time_array.size(); i++)
+            {
+                String [] data = new String[2];
+                data[0] = Long.toString(energy_time_array.get(i));
+                data[1] = Double.toString(energy_array.get(i));
+
+                writer.writeNext(data);
+                Log.d(Constants.DEBUG, "Energy: " + data[0] + "-" + data[1]);
+            }
+
+
+            writer.close();
+
+        } catch (IOException e) {
+
+        }
+
+        filepath = Environment.getExternalStorageDirectory().getPath() + "/SAIL_Meeting/" + android_id + "_pitch_" + startRecordingTime + ".csv";
+
+        try (CSVWriter writer = new CSVWriter(new FileWriter(filepath, true))) {
+
+            String [] header = new String[2];
+            header[0] = "timestamp";
+            header[1] = "pitch";
+
+            writer.writeNext(header);
+
+            for ( int i = 0; i < pitch_time_array.size(); i++)
+            {
+                String [] data = new String[2];
+                data[0] = Long.toString(pitch_time_array.get(i));
+                data[1] = Double.toString(pitch_array.get(i));
+                writer.writeNext(data);
+
+                Log.d(Constants.DEBUG, "Pitch: " + data[0] + "-" + data[1]);
+            }
+
+
+            writer.close();
+
+        } catch (IOException e) {
+
+        }
+
 
     }
 

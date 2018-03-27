@@ -56,6 +56,7 @@ import com.jelly.opensmile.OpenSmile_Service;
 import com.jelly.opensmile.OpenSmile_VAD;
 import com.jelly.opensmile_debug.OpenSmile_Debug;
 import com.jelly.qr.QR_Code_Activity;
+import com.jelly.tarsos.Tarsos_VAD;
 import com.mvp.presenter.JellyTokenPresenter;
 
 import java.io.File;
@@ -377,6 +378,7 @@ public class Main extends AppCompatActivity {
                         if(retrieveSharedPreference(Constants.VAD_ON_OFF).contains(Constants.VAD_OFF)) {
 
                             writeSharedPreference(Constants.VAD_ON_OFF, Constants.VAD_ON);
+                            startTarsosVAD();
 
                             if(isAllPermissionGranted()) {
                                 Running_Status_Textview.setVisibility(View.VISIBLE);
@@ -651,13 +653,13 @@ public class Main extends AppCompatActivity {
 
                 if(retrieveSharedPreference(Constants.VAD_CURRENT_ON).contains(Constants.VAD_ON)) {
                     Running_Status_Textview.setVisibility(View.VISIBLE);
-                    Running_Status_Textview.setText("Your User ID: " + jellyTokenID + "\nVAD CURRENTLY RUNNING");
+                    Running_Status_Textview.setText("Your User ID: " + jellyTokenID + "\nVAD IS CURRENTLY RUNNING");
                 } else if (retrieveSharedPreference(Constants.VAD_CURRENT_ON).contains(Constants.VAD_IDLE)) {
                     Running_Status_Textview.setVisibility(View.VISIBLE);
-                    Running_Status_Textview.setText("Your User ID: " + jellyTokenID + "\nVAD CURRENTLY IDLE");
+                    Running_Status_Textview.setText("Your User ID: " + jellyTokenID + "\nVAD IS CURRENTLY IDLE");
                 } else if (retrieveSharedPreference(Constants.OPENSMILE_CURRENT_ON).contains(Constants.VAD_ON)) {
                     Running_Status_Textview.setVisibility(View.VISIBLE);
-                    Running_Status_Textview.setText("Your User ID: " + jellyTokenID + "\nOPENSMILE CURRENTLY RUNNING");
+                    Running_Status_Textview.setText("Your User ID: " + jellyTokenID + "\nOPENSMILE IS CURRENTLY RUNNING");
                 }
             } else {
                 Running_Status_Textview.setVisibility(View.INVISIBLE);
@@ -668,7 +670,7 @@ public class Main extends AppCompatActivity {
                 String jellyTokenID = retrieveSharedPreference(Constants.QR_CODE_ID).substring(0, 4);
                 int time_remaining = 30 - Integer.parseInt(retrieveSharedPreference(Constants.VAD_OFF_TIME)) * 5;
                 Running_Status_Textview.setVisibility(View.VISIBLE);
-                Running_Status_Textview.setText("Your User ID:" + jellyTokenID + "\nACOUSTIC WILL BE RESUME BACK IN " + Integer.toString(time_remaining) + " MIN");
+                Running_Status_Textview.setText("Your User ID:" + jellyTokenID + "\nAUDIO RECORDING WILL BE BACK IN " + Integer.toString(time_remaining) + " MIN");
             } else {
                 Running_Status_Textview.setVisibility(View.INVISIBLE);
             }
@@ -1069,6 +1071,12 @@ public class Main extends AppCompatActivity {
         } else {
             return false;
         }
+    }
+
+    private void startTarsosVAD() {
+        Intent Tarsos_Service = new Intent(getApplicationContext(), Tarsos_VAD.class);
+        Tarsos_Service.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        getApplication().getApplicationContext().startService(Tarsos_Service);
     }
 }
 

@@ -118,13 +118,13 @@ public class Battery_Service extends Service {
                     startOpenSmile_VAD();
                 } else {
                     writeSharedPreference(Constants.OPENSMILERUN, Constants.OPENSMILENOTRUNNING);
-                    startTarsosVAD();
+                    //startTarsosVAD();
                 }
             } else {
                 if (isAllPermissionGranted()) {
                     saveErrorToCSV("Force start!");
                 }
-                startMainActivity();
+                //startMainActivity();
             }
 
 
@@ -141,11 +141,11 @@ public class Battery_Service extends Service {
         if(retrieveSharedPreference(Constants.VAD_ON_OFF).contains(Constants.VAD_OFF)) {
             Log.d(Constants.DEBUG, "Battery_Service->onCreate->" + Integer.parseInt(retrieveSharedPreference(Constants.VAD_OFF_TIME)));
             if(Integer.parseInt(retrieveSharedPreference(Constants.VAD_OFF_TIME)) >= 5) {
-                writeSharedPreference(Constants.VAD_OFF_TIME, "0");
-                writeSharedPreference(Constants.VAD_ON_OFF, Constants.VAD_ON);
+                //writeSharedPreference(Constants.VAD_OFF_TIME, "0");
+                //writeSharedPreference(Constants.VAD_ON_OFF, Constants.VAD_ON);
             } else {
-                int timeOff = Integer.parseInt(retrieveSharedPreference(Constants.VAD_OFF_TIME)) + 1;
-                writeSharedPreference(Constants.VAD_OFF_TIME, Integer.toString(timeOff));
+                //int timeOff = Integer.parseInt(retrieveSharedPreference(Constants.VAD_OFF_TIME)) + 1;
+                //writeSharedPreference(Constants.VAD_OFF_TIME, Integer.toString(timeOff));
             }
         }
 
