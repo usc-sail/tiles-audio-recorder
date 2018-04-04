@@ -68,7 +68,7 @@ public class Tarsos_VAD extends Service implements AudioProcessor, Thread.Uncaug
     private final boolean ENABLE_ADAPTIVE       = false;
 
     private AudioDispatcher dispatcher;
-    private double threshold = SilenceDetector.DEFAULT_SILENCE_THRESHOLD + 3;
+    private double threshold = SilenceDetector.DEFAULT_SILENCE_THRESHOLD + 12;
     private SilenceDetector silenceDetector;
 
     private Handler vadHandler = new Handler();
@@ -156,7 +156,7 @@ public class Tarsos_VAD extends Service implements AudioProcessor, Thread.Uncaug
                 VAD_GAP_TIME = Integer.parseInt(retrieveSharedPreference(Constants.VAD_GAP));
                 Log.d(DEBUG, "onStart: TarsosVAD_Services: " + VAD_GAP_TIME);
             } else {
-                VAD_GAP_TIME = 60;
+                VAD_GAP_TIME = 80;
                 Log.d(DEBUG, "onStart: TarsosVAD_Services: " + VAD_GAP_TIME);
                 writeSharedPreference(Constants.VAD_GAP, Integer.toString(VAD_GAP_TIME));
             }
@@ -183,7 +183,7 @@ public class Tarsos_VAD extends Service implements AudioProcessor, Thread.Uncaug
                 }
             }, 2500);
         } else {
-            waitHandler.postDelayed(waitTickExecutor, 90 * 1000);
+            waitHandler.postDelayed(waitTickExecutor, 100 * 1000);
         }
 
         return START_STICKY;
@@ -426,7 +426,7 @@ public class Tarsos_VAD extends Service implements AudioProcessor, Thread.Uncaug
                 writeSharedPreference(Constants.VAD_TRIGGERED, Constants.TRUE);
                 mHandler.postDelayed(mTickExecutor, 1000);
                 writeSharedPreference(Constants.OPENSMILERUN, Constants.OPENSMILERUNING);
-            } else if (validPitchNumber > 4) {
+            } else if (validPitchNumber > 6) {
                 isFoundVAD = true;
                 mHandler.postDelayed(mTickExecutor, 1000);
                 writeSharedPreference(Constants.VAD_TRIGGERED, Constants.TRUE);
