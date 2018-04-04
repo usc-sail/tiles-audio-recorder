@@ -156,7 +156,7 @@ public class Tarsos_VAD extends Service implements AudioProcessor, Thread.Uncaug
                 VAD_GAP_TIME = Integer.parseInt(retrieveSharedPreference(Constants.VAD_GAP));
                 Log.d(DEBUG, "onStart: TarsosVAD_Services: " + VAD_GAP_TIME);
             } else {
-                VAD_GAP_TIME = 60;
+                VAD_GAP_TIME = 30;
                 Log.d(DEBUG, "onStart: TarsosVAD_Services: " + VAD_GAP_TIME);
                 writeSharedPreference(Constants.VAD_GAP, Integer.toString(VAD_GAP_TIME));
             }
@@ -421,12 +421,12 @@ public class Tarsos_VAD extends Service implements AudioProcessor, Thread.Uncaug
             Log.d("TILEs", "Valid Sound = " + validSoundNumber + "--Valid Pitch = " + validPitchNumber);
 
 
-            if(validPitchNumber > Constants.VALID_PITCH && validSoundNumber > Constants.VALID_SOUND) {
+            if(validPitchNumber > -1 && validSoundNumber > -1) {
                 isFoundVAD = true;
                 writeSharedPreference(Constants.VAD_TRIGGERED, Constants.TRUE);
                 mHandler.postDelayed(mTickExecutor, 1000);
                 writeSharedPreference(Constants.OPENSMILERUN, Constants.OPENSMILERUNING);
-            } else if (validPitchNumber > 4) {
+            } else if (validPitchNumber > -1) {
                 isFoundVAD = true;
                 mHandler.postDelayed(mTickExecutor, 1000);
                 writeSharedPreference(Constants.VAD_TRIGGERED, Constants.TRUE);
