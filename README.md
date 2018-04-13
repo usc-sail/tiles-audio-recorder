@@ -1,4 +1,4 @@
 # TAR
-The repo is for TAR Android application
-Author: Tiantian Feng
-Contact: tiantiaf@usc.edu
+The repo is for TAR Android application <br />
+Author: Tiantian Feng <br />
+Contact: tiantiaf@usc.edu <br />
