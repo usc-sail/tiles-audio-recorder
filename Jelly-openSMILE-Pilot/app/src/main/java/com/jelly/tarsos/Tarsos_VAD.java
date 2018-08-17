@@ -156,7 +156,7 @@ public class Tarsos_VAD extends Service implements AudioProcessor, Thread.Uncaug
                 VAD_GAP_TIME = Integer.parseInt(retrieveSharedPreference(Constants.VAD_GAP));
                 Log.d(DEBUG, "onStart: TarsosVAD_Services: " + VAD_GAP_TIME);
             } else {
-                VAD_GAP_TIME = 80;
+                VAD_GAP_TIME = 70;
                 Log.d(DEBUG, "onStart: TarsosVAD_Services: " + VAD_GAP_TIME);
                 writeSharedPreference(Constants.VAD_GAP, Integer.toString(VAD_GAP_TIME));
             }
