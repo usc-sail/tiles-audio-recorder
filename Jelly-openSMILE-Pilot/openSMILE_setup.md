@@ -1,3 +1,4 @@
+# openSMILE setup instructions
 
 After checking out from SVN, the following steps might be necessary:
 
@@ -21,13 +22,10 @@ After checking out from SVN, the following steps might be necessary:
      app/build.gradle
    or better: add the NDK directory to your system path
    and then use 'ndk-build' as command
-
 8. Copy openSMILE configs and models to app/src/assets.
    Load these by specifying them in app/src/plugins/Config.scala.
-
 9. For a new GUI application, create a new SmilePlugin within app/src/scala/.../plugins
    See the existing example and config code and respective documentation there.
-
 10. If you want to do something different than just showing some live openSMILE output,
     take a look at the following classes and respective methods:
     - src/scala/.../MainActivity.scala -> SmileThread & onSmileMessageReceived()
